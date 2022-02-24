@@ -73,20 +73,28 @@ Start Docker stack using docker-compose.yml
 $ docker stack deploy -c docker-compose.yml hadoop
 ```
 
-## Running a MapReduce Example
+## Adding a DataNode to Hadoop cluster
 
-Identify which Docker container started as Hadoop master and logged into it
+in hdpmst :
 ```shell
-$ docker container ls   # run it in each node and check which <container ID> is running the Hadoop master constainer
-CONTAINER ID   IMAGE                         COMMAND                  CREATED              STATUS              PORTS      NAMES
-d723786ae3e0   mkenjis/ubhdpcluatt_img:latest   "/usr/bin/supervisord"   About a minute ago   Up About a minute   9000/tcp   hadoop_hdp3.1.pmvvdxosgi2dkz7m8vi3i0x8t
-3895ee795371   mkenjis/ubhdpcluatt_img:latest   "/usr/bin/supervisord"   About a minute ago   Up About a minute   9000/tcp   hadoop_hdpmst.1.j04grga7ioelyt1vtr26h3fmr
-
-$ docker container exec -it <container ID> bash
+copy to new node
+> core-site.xml, 
+> hdfs-site.xml, 
+> mapred-site.xml, 
+> yarn-site.xml, 
+> hadoop-env.sh
 ```
 
-Inside the Hadoop master container, check your HDFS service
+in new node:
 ```shell
+run 
+$ hadoop-daemon.sh start datanode
+$ yarn-daemon.sh start nodemanager
+```
+
+in hdpmst :
+```shell
+check new datanodes added to HDP cluster:
 $ hdfs dfsadmin -report
 Configured Capacity: 15000010752 (13.97 GB)
 Present Capacity: 11198918656 (10.43 GB)
@@ -180,6 +188,18 @@ Found 3 items
 -rw-r--r--   2 root supergroup      84854 2021-12-06 17:50 /data/LICENSE.txt
 -rw-r--r--   2 root supergroup      14978 2021-12-06 17:50 /data/NOTICE.txt
 -rw-r--r--   2 root supergroup       1366 2021-12-06 17:50 /data/README.txt
+```
+
+## Running a MapReduce Example
+
+Identify which Docker container started as Hadoop master and logged into it
+```shell
+$ docker container ls   # run it in each node and check which <container ID> is running the Hadoop master constainer
+CONTAINER ID   IMAGE                         COMMAND                  CREATED              STATUS              PORTS      NAMES
+d723786ae3e0   mkenjis/ubhdpcluatt_img:latest   "/usr/bin/supervisord"   About a minute ago   Up About a minute   9000/tcp   hadoop_hdp3.1.pmvvdxosgi2dkz7m8vi3i0x8t
+3895ee795371   mkenjis/ubhdpcluatt_img:latest   "/usr/bin/supervisord"   About a minute ago   Up About a minute   9000/tcp   hadoop_hdpmst.1.j04grga7ioelyt1vtr26h3fmr
+
+$ docker container exec -it <container ID> bash
 ```
 
 Copy the mapper and reducer Python scripts and find 
